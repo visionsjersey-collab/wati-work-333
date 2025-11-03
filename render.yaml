@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: wati-work-bot
+    env: python3.11
+    plan: free
+    autoDeploy: true
+    cache: pip
+
+    buildCommand: |
+      apt-get update && apt-get install -y xvfb
+      pip install --upgrade pip setuptools wheel
+      pip install greenlet>=2.0.2 -r requirements.txt
+      python -m playwright install chromium
+
+    startCommand: xvfb-run -a python3 main.py
+
+    envVars:
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: /opt/render/project/src/.playwright-browsers
+      - key: PORT
+        value: ${PORT}
