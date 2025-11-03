@@ -1,2 +1,4 @@
 playwright==1.44.0
 aiohttp==3.9.5
+greenlet==3.0.3
+xvfbwrapper==0.2.9

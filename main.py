@@ -172,16 +172,23 @@ async def run_wati_bot():
                 await wait_for_manual_login(page, browser_context)
 
         # ✅ Zip after successful login
+               # ✅ Zip after successful login (safe)
         if not ON_RENDER:
             print("📦 Creating wati_profile.zip for Render...", flush=True)
             with zipfile.ZipFile(ZIP_PATH, "w", zipfile.ZIP_DEFLATED) as zipf:
                 for root, _, files in os.walk(USER_DATA_DIR):
                     for file in files:
                         fp = os.path.join(root, file)
-                        if any(s in fp for s in ["Singleton", "RunningChromeVersion"]):
+                        # Skip lockfiles or Chrome runtime files
+                        if "lock" in file.lower() or "Singleton" in fp or "RunningChromeVersion" in fp:
                             continue
-                        zipf.write(fp, os.path.relpath(fp, os.path.dirname(USER_DATA_DIR)))
+                        try:
+                            zipf.write(fp, os.path.relpath(fp, os.path.dirname(USER_DATA_DIR)))
+                        except PermissionError:
+                            print(f"⚠️ Skipping locked file: {fp}", flush=True)
+                            continue
             print("✅ wati_profile.zip created successfully!", flush=True)
+
 
         print("🤖 Starting main automation loop...", flush=True)
         await main_automation(page)
